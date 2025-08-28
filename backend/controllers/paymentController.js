@@ -62,47 +62,47 @@ const createCheckoutSession = async (req, res) => {
   }
 };
 
-const handlePaymentSuccess = async (req, res) => {
-  try {
-    const { session_id } = req.query;
+// const handlePaymentSuccess = async (req, res) => {
+//   try {
+//     const { session_id } = req.query;
 
-    if (!session_id) {
-      return res.status(400).json({ error: "Missing session ID" });
-    }
+//     if (!session_id) {
+//       return res.status(400).json({ error: "Missing session ID" });
+//     }
 
-    const session = await stripe.checkout.sessions.retrieve(session_id);
+//     const session = await stripe.checkout.sessions.retrieve(session_id);
 
-    if (session.payment_status === "paid") {
-      await Payment.findOneAndUpdate(
-        { stripePaymentId: session_id },
-        { status: "paid" }
-      );
+//     if (session.payment_status === "paid") {
+//       await Payment.findOneAndUpdate(
+//         { stripePaymentId: session_id },
+//         { status: "paid" }
+//       );
 
-      const YOUR_DOMAIN = "http://localhost:3000";
+//       const YOUR_DOMAIN = "http://localhost:3000";
 
-      const tokens = await Token.find({});
-      const payload = {
-        notification: {
-          title: "Payment Successful",
-          body: `Thank you for your purchase of ${
-            session.amount_total / 100
-          } ${session.currency.toUpperCase()}`,
-        },
-      };
+//       const tokens = await Token.find({});
+//       const payload = {
+//         notification: {
+//           title: "Payment Successful",
+//           body: `Thank you for your purchase of ${
+//             session.amount_total / 100
+//           } ${session.currency.toUpperCase()}`,
+//         },
+//       };
 
-      await Promise.all(
-        tokens.map(({ token }) => admin.messaging().send({ ...payload, token }))
-      );
+//       await Promise.all(
+//         tokens.map(({ token }) => admin.messaging().send({ ...payload, token }))
+//       );
 
-      return res.redirect(`${YOUR_DOMAIN}?success=true`);
-    } else {
-      return res.status(400).json({ error: "Payment not completed" });
-    }
-  } catch (err) {
-    console.error("Payment success error:", err.message);
-    return res.status(500).json({ error: err.message });
-  }
-};
+//       return res.redirect(`${YOUR_DOMAIN}?success=true`);
+//     } else {
+//       return res.status(400).json({ error: "Payment not completed" });
+//     }
+//   } catch (err) {
+//     console.error("Payment success error:", err.message);
+//     return res.status(500).json({ error: err.message });
+//   }
+// };
 
 const endpointSecret =
   "whsec_4e3f43ddf8af03649a62f116e3bb93e134115c490335761a071f32cfb36c1098";
@@ -126,9 +126,32 @@ const stripeWebhook = async (req, res) => {
     );
   }
 
+  // Send Notification to all saved tokens
+    const tokens = await Token.find({});
+    const deviceTokens = tokens.map(t => t.token);
+
+    if (deviceTokens.length > 0) {
+      const message = {
+        notification: {
+          title: "Payment Successful 🎉",
+          body: "Your payment has been processed successfully.",
+        },
+        tokens: deviceTokens
+      };
+      try {
+        await admin.messaging().sendEachForMulticast(message);
+        console.log("✅ Notification sent to all users");
+      } catch (error) {
+        console.error("❌ Error sending notification:", error);
+      }
+    }
+  
+
   res.json({ received: true });
 };
 
-module.exports = { createCheckoutSession, stripeWebhook, handlePaymentSuccess };
+// module.exports = { createCheckoutSession, stripeWebhook, handlePaymentSuccess };
+module.exports = { createCheckoutSession, stripeWebhook };
+
 
 

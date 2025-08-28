@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import "./App.css";
 import { messaging } from "./firebase";
 import { getToken, onMessage } from "firebase/messaging";
-import axios from "axios";
+import axios from "axios";  
 import PlanPage from "./component/CheckoutForm";
 
 function App() {
@@ -35,17 +35,17 @@ function App() {
       }
     );
         // ✅ Check for session_id and notify backend
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('session_id');
-    if (sessionId) {
-      axios.get(`http://localhost:7000/api/payment-success?session_id=${sessionId}`)
-        .then(() => {
-          console.log("✅ Payment verification triggered");
-        })
-        .catch(err => {
-          console.error("❌ Error triggering payment success:", err.message);
-        });
-    }
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const sessionId = urlParams.get('session_id');
+    // if (sessionId) {
+    //   axios.get(`http://localhost:7000/api/payment-success?session_id=${sessionId}`)
+    //     .then(() => {
+    //       console.log("✅ Payment verification triggered");
+    //     })
+    //     .catch(err => {
+    //       console.error("❌ Error triggering payment success:", err.message);
+    //     });
+    // }
     return () =>unsubscribe();
   }, []);
 

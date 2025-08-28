@@ -1,30 +1,3 @@
-// import React from 'react';
-// import axios from 'axios';
-
-// export default function CheckoutButton() {
-//   const handleClick = async () => {
-//     try {
-//       const res = await axios.post('http://localhost:7000/api/create-payment-intent', {
-//         name: 'Test Product',
-//         image: 'https://via.placeholder.com/150',
-//         amount: 2000,
-//         quantity: 1,
-//         currency: 'usd' 
-//       });
-
-//       window.location.href = res.data.url;
-//     } catch (err) {
-//       console.error('Error redirecting to Stripe Checkout:', err.message);
-//     }
-//   };
-  
-//   return (
-//     <button onClick={handleClick}>
-//      pay
-//     </button>
-//   );
-// }
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
